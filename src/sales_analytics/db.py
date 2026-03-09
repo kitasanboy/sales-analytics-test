@@ -1,10 +1,12 @@
 import sqlite3
 from sqlite3 import Connection
 
+
 def create_in_memory_db() -> Connection:
     conn = sqlite3.connect(":memory:")
     init_schema(conn)
     return conn
+
 
 def init_schema(conn: Connection) -> None:
     cur = conn.cursor()
@@ -16,7 +18,6 @@ def init_schema(conn: Connection) -> None:
             name TEXT NOT NULL,
             country TEXT
         );
-
         CREATE TABLE orders (
             order_id INTEGER PRIMARY KEY,
             customer_id INTEGER NOT NULL,
@@ -24,7 +25,6 @@ def init_schema(conn: Connection) -> None:
             total_amount REAL,
             FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
         );
-
         CREATE TABLE order_items (
             order_item_id INTEGER PRIMARY KEY,
             order_id INTEGER NOT NULL,
@@ -33,6 +33,11 @@ def init_schema(conn: Connection) -> None:
             unit_price REAL NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(order_id)
         );
+
+        -- indexes for query performance
+        CREATE INDEX idx_orders_customer_id   ON orders (customer_id);
+        CREATE INDEX idx_orders_order_date    ON orders (order_date);
+        CREATE INDEX idx_order_items_order_id ON order_items (order_id);
         """
     )
     conn.commit()
